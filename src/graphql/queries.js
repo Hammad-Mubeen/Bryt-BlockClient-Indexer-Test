@@ -26,16 +26,18 @@ const blocks = {
   async resolve(parent, args, context) {
     try {
 
-      //Keyset pagination for blocks data
-      let blocks = await DB(BlockModel.table)
-      .where('id' ,'<', BigInt(args.lastId))
-      .orderBy('id','desc')
-      .limit(parseFloat(args.limit));
-
       // count total blocks
       let arr = await DB(BlockModel.table).count('* as total');
       let count = arr[0].total.toString();
-      
+
+      let db_last_id = BigInt(count - args.lastId);
+
+      //Keyset pagination for blocks data
+      let blocks = await DB(BlockModel.table)
+      .where('id' ,'<=', db_last_id)
+      .orderBy('id','desc')
+      .limit(parseFloat(args.limit));
+
       return {blocks: blocks, count: count};
     } catch (error) {
       throw new Error(error);
@@ -68,18 +70,20 @@ const transactions = {
   },
   async resolve(parent, args, context) {
     try {
-     
-       //Keyset pagination for blocks data
-       let transactions = await DB(TransactionModel.table)
-       .where('id' ,'<', BigInt(args.lastId))
-       .orderBy('id','desc')
-       .limit(parseFloat(args.limit));
- 
-       // count total blocks
-       let arr = await DB(TransactionModel.table).count('* as total');
-       let count = arr[0].total.toString();
-       
-       return {transactions: transactions, count: count};
+
+      // count total transactions
+      let arr = await DB(TransactionModel.table).count('* as total');
+      let count = arr[0].total.toString();
+
+      let db_last_id = BigInt(count - args.lastId);
+
+      //Keyset pagination for transactions data
+      let transactions = await DB(TransactionModel.table)
+      .where('id' ,'<=', db_last_id)
+      .orderBy('id','desc')
+      .limit(parseFloat(args.limit));
+      
+      return {transactions: transactions, count: count};
     } catch (error) {
       throw new Error(error);
     }
@@ -113,40 +117,25 @@ const transactionsByAddress = {
   },
   async resolve(parent, args, context) {
     try {
-      let transactions = [];
 
-      if(args.searchInto == "from")
-      {
-        //Keyset pagination for blocks data
-        transactions = await DB(TransactionModel.table)
-        .where('id' ,'<', BigInt(args.lastId))
-        .where({from : args.address})
-        .orderBy('id','desc')
-        .limit(parseFloat(args.limit));
-      } 
-      else if(args.searchInto == "to")
-      {
-        //Keyset pagination for blocks data
-        transactions = await DB(TransactionModel.table)
-        .where('id' ,'<', BigInt(args.lastId))
-        .where({to : args.address})
-        .orderBy('id','desc')
-        .limit(parseFloat(args.limit));
-      }
-      else
-      {
-        //Keyset pagination for blocks data
-        transactions = await DB(TransactionModel.table)
-        .where('id' ,'<', BigInt(args.lastId))
-        .where({from : args.address })
-        .orWhere({to: args.address})
-        .orderBy('id','desc')
-        .limit(parseFloat(args.limit));
-      } 
-       
-      // count total blocks
-      let arr = await DB(TransactionModel.table).count('* as total');
+      // count total transactions where to and from both
+      let arr = await DB(TransactionModel.table)
+      .where({from : args.address})
+      .orWhere({to: args.address})
+      .count('* as total');
+
       let count = arr[0].total.toString();
+
+      let db_last_id = BigInt(count - args.lastId);
+
+      //Keyset pagination for blocks data
+      let transactions = await DB(TransactionModel.table)
+      .where('id' ,'<=', db_last_id)
+      .where({from : args.address})
+      .orWhere({to: args.address})
+      .orderBy('id','desc')
+      .limit(parseFloat(args.limit));
+      
 
       return {transactions: transactions, count: count};
     } catch (error) {

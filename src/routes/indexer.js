@@ -426,7 +426,7 @@ async function Indexer()
     let blockNumber = blockHeight;
     console.log("Latest Block Height is: ", blockNumber);
 
-    //blockNumber=227;
+    //blockNumber=1;
 
     while (true)
     {
