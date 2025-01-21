@@ -16,7 +16,8 @@ let JSON_RPC_NODE_URLs = [
 'http://3.16.190.75:8010/rpc',
 'http://3.16.190.75:8020/rpc',
 'http://3.16.190.75:8030/rpc',
-'http://3.16.190.75:8040/rpc'
+'http://3.16.190.75:8040/rpc',
+'http://3.16.190.75:8050/rpc'
 ];
 
 async function makeRPCSClients()
@@ -426,7 +427,7 @@ async function Indexer()
     let blockNumber = blockHeight;
     console.log("Latest Block Height is: ", blockNumber);
 
-    //blockNumber=1;
+    blockNumber=1;
 
     while (true)
     {
